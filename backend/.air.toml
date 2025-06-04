@@ -1,0 +1,10 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+bin = "tmp/main"
+cmd = "go build -o ./tmp/main"
+exclude_dir = ["tmp", "vendor"]
+include_ext = ["go"]
+[log]
+time = true
