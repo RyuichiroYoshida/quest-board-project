@@ -1,21 +1,21 @@
 package main
+
 import (
-	"fmt"
-	"net/http"
+	"github.com/RyuichiroYoshida/quest-board-project/db"
+	"github.com/RyuichiroYoshida/quest-board-project/routes"
+	"github.com/RyuichiroYoshida/quest-board-project/utils"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Create a new Gin router
+	db.SetupDb()
+
 	router := gin.Default()
+	routes.Setup(router)
 
-	// Define a simple GET endpoint
-	router.GET("/hello", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "Hello, World!"})
-	})
-
-	// Start the server on port 8080
 	if err := router.Run(":8080"); err != nil {
-		fmt.Printf("Failed to start server: %v\n", err)
+		utils.LogError("Failed to start server", err)
+	} else {
+		utils.LogInfo("Server started successfully on port 8080")
 	}
 }
