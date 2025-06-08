@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"os"
+
 	"github.com/RyuichiroYoshida/quest-board-project/internal/auth/usecase"
 	"github.com/gin-gonic/gin"
 )
@@ -19,8 +21,8 @@ func NewAuthHandler(u usecase.AuthUsecase) *authHandler {
 }
 
 func (h *authHandler) LoginDiscord(c *gin.Context) {
-	clientId := "YOUR_CLIENT_ID"       // 環境変数や設定から取得してください
-	redirectUri := "YOUR_REDIRECT_URI" // 環境変数や設定から取得してください
+	clientId := os.Getenv("DISCORD_CLIENT_ID")
+	redirectUri := os.Getenv("DISCORD_REDIRECT_URI")
 	scopes := []string{"identify"}
 	authURL := h.authUsecase.RedirectAuthPage(clientId, redirectUri, scopes...)
 	c.Redirect(302, authURL)
@@ -32,9 +34,13 @@ func (h *authHandler) ExchangeCode(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "code is required"})
 		return
 	}
-	clientId := "YOUR_CLIENT_ID"         // 環境変数や設定から取得してください
-	clientSecret := "YOUR_CLIENT_SECRET" // 環境変数や設定から取得してください
-	redirectUri := "YOUR_REDIRECT_URI"   // 環境変数や設定から取得してください
+	clientId := os.Getenv("DISCORD_CLIENT_ID")
+	clientSecret := os.Getenv("DISCORD_CLIENT_SECRET")
+	redirectUri := os.Getenv("DISCORD_REDIRECT_URI")
+	if clientId == "" || clientSecret == "" || redirectUri == "" {
+		c.JSON(500, gin.H{"error": "missing required environment variables"})
+		return
+	}
 
 	tokenResp, err := h.authUsecase.ExchangeCode(code, clientId, clientSecret, redirectUri)
 	if err != nil {
