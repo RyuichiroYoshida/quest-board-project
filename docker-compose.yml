@@ -37,6 +37,7 @@ services:
     working_dir: /app
     env_file:
       - db.env
+      - ./backend/.env
     command: go run ./cmd/server/main.go
 
   # frontend:
