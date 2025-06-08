@@ -9,12 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetupDb() {
+func SetupDb() *gorm.DB {
 	// DB接続
 	dsn := getDSN()
 	if dsn == "" {
 		utils.LogError("Failed to get database DSN.")
-		return
+		return nil
 	}
 	// データベース接続
 	database, err := connectDB(dsn)
@@ -23,6 +23,7 @@ func SetupDb() {
 	}
 	// マイグレーション
 	database.AutoMigrate(&models.User{}, &models.Posts{}, &models.Applications{})
+	return database
 }
 
 func connectDB(dsn string) (*gorm.DB, error) {
