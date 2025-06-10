@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
@@ -17,6 +19,6 @@ type Posts struct {
 	MaxApplications    int            `gorm:"not null"`
 	Deadline           string         `gorm:"not null"`
 	Status             string         `gorm:"not null;default:'open'"` // 'open', 'closed', 'coming_soon'
-	CreatedAt          string         `gorm:"not null"`
-	UpdatedAt          string         `gorm:"not null"`
+	CreatedAt          time.Time      `gorm:"not null"`
+	UpdatedAt          time.Time      `gorm:"not null"`
 }
