@@ -10,6 +10,8 @@ import (
 type AuthHandler interface {
 	LoginDiscord(c *gin.Context)
 	ExchangeCode(c *gin.Context)
+	Me(c *gin.Context)
+	Logout(c *gin.Context)
 }
 
 type authHandler struct {
