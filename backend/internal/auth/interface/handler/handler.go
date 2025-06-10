@@ -30,6 +30,31 @@ func (h *authHandler) LoginDiscord(c *gin.Context) {
 	c.Redirect(302, authURL)
 }
 
+func (h *authHandler) Me(c *gin.Context) {
+	// ここではセッションやJWTからユーザーIDを取得する処理が必要
+	// 例: userId := c.GetString("user_id")
+	// 今回は簡易的に固定のユーザーIDを使用
+	userId := "example_user_id"
+	user, err := h.authUsecase.Me(userId)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "failed to get user info"})
+		return
+	}
+	c.JSON(200, gin.H{"user": user})
+}
+
+func (h *authHandler) Logout(c *gin.Context) {
+	// ここではセッションやJWTからユーザーIDを取得する処理が必要
+	// 例: userId := c.GetString("user_id")
+	// 今回は簡易的に固定のユーザーIDを使用
+	userId := "example_user_id"
+	if err := h.authUsecase.Logout(userId); err != nil {
+		c.JSON(500, gin.H{"error": "failed to logout"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "logged out successfully"})
+}
+
 func (h *authHandler) ExchangeCode(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {

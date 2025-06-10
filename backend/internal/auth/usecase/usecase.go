@@ -49,6 +49,16 @@ func (u *AuthUsecase) Login(user *domain.User) error {
 	return nil
 }
 
+// TODO: Logoutは、ユーザーのセッションを終了する
+func (u *AuthUsecase) Logout(id string) error {
+	return nil
+}
+
+// TODO: セッションを元にユーザー情報を取得する
+func (u *AuthUsecase) Me(id string) (*domain.User, error) {
+	return u.repo.ReadUser(id)
+}
+
 // Discordの認証ページへのリダイレクトURLを生成する
 func (u *AuthUsecase) RedirectAuthPage(clientId, redirectUri string, scopes ...string) string {
 	authURL := "https://discord.com/api/oauth2/authorize" +
