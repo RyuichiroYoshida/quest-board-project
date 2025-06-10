@@ -1,13 +1,18 @@
 package infrastructure
 
 import (
+	"time"
+
 	"github.com/RyuichiroYoshida/quest-board-project/internal/auth/domain"
 	"github.com/RyuichiroYoshida/quest-board-project/models"
 	"gorm.io/gorm"
 )
 
 type AuthRepository interface {
-	FindOrCreateUser(user *domain.User) error
+	CreateUser(user *domain.User) error
+	ReadUser(id string) (*domain.User, error)
+	UpdateUser(user *domain.User) error
+	DeleteUser(id string) error
 }
 
 type authRepository struct {
@@ -18,23 +23,47 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 	return &authRepository{db}
 }
 
-func (r *authRepository) FindOrCreateUser(user *domain.User) error {
+func (r *authRepository) CreateUser(user *domain.User) error {
 	// domain.User -> models.User への変換
 	mUser := models.User{
-		Id:     user.Id,
-		Name:   user.Name,
-		Avatar: user.Avatar,
-		// DiscordId, CreatedAtは外部から渡す場合はuserに追加、またはここで生成
+		Id:        user.Id,
+		Name:      user.Name,
+		Avatar:    user.Avatar,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
-	// DiscordIdは必須なので、user.Nameなどに一時的に格納している場合は修正が必要
-	// ここでは例としてNameをDiscordIdに流用（本来はdomain.UserにDiscordIdを追加すべき）
-	mUser.DiscordId = user.Id // 仮の割り当て
-	mUser.CreatedAt = ""      // 必要に応じてセット
 
-	var existing models.User
-	err := r.db.Where("discord_id = ?", mUser.DiscordId).First(&existing).Error
-	if err == gorm.ErrRecordNotFound {
-		return r.db.Create(&mUser).Error
+	return r.db.Create(&mUser).Error
+}
+
+func (r *authRepository) ReadUser(id string) (*domain.User, error) {
+	var mUser models.User
+	if err := r.db.Where("id = ?", id).First(&mUser).Error; err != nil {
+		return nil, err
 	}
-	return err
+
+	// models.User -> domain.User への変換
+	user := &domain.User{
+		Id:     mUser.Id,
+		Name:   mUser.Name,
+		Avatar: mUser.Avatar,
+	}
+
+	return user, nil
+}
+
+func (r *authRepository) UpdateUser(user *domain.User) error {
+	// domain.User -> models.User への変換
+	mUser := models.User{
+		Id:        user.Id,
+		Name:      user.Name,
+		Avatar:    user.Avatar,
+		UpdatedAt: time.Now(),
+	}
+
+	return r.db.Save(&mUser).Error
+}
+
+func (r *authRepository) DeleteUser(id string) error {
+	return r.db.Where("id = ?", id).Delete(&models.User{}).Error
 }
