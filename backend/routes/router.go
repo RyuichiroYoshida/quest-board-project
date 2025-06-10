@@ -15,6 +15,8 @@ func Setup(r *gin.Engine, c *di.Container) {
 		{
 			auth.GET("/login/discord", authH.LoginDiscord)
 			auth.GET("/exchange", authH.ExchangeCode)
+			auth.GET("/me", authH.Me)
+			auth.GET("/logout", authH.Logout)
 		}
 	}
 	log.Println(api)
