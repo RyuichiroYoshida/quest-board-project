@@ -12,7 +12,10 @@ import (
 )
 
 type AuthRepository interface {
-	FindOrCreateUser(user *domain.User) error
+	CreateUser(user *domain.User) error
+	ReadUser(id string) (*domain.User, error)
+	UpdateUser(user *domain.User) error
+	DeleteUser(id string) error
 }
 
 type AuthUsecase struct {
@@ -25,17 +28,28 @@ func NewAuthUsecase(repo AuthRepository) *AuthUsecase {
 	}
 }
 
+// Loginは、ユーザーの認証を行い、必要に応じてユーザーをデータベースに登録する
 func (u *AuthUsecase) Login(user *domain.User) error {
-	if user.IsValid() {
-		utils.LogWarning("authUsecase.Login: user is nil")
-		return errors.New("user is nil")
+	if user == nil || !user.IsValid() {
+		utils.LogWarning("authUsecase.Login: user is nil or invalid")
+		return errors.New("user is nil or invalid")
 	}
-	if err := u.repo.FindOrCreateUser(user); err != nil {
-		utils.LogWarning("authUsecase.Login: failed to find or create user")
+
+	existing, err := u.repo.ReadUser(user.Id)
+	if err != nil {
+		utils.LogWarning("authUsecase.Login: failed to read user from repository")
+		return err
+	}
+	if existing == nil {
+		if err := u.repo.CreateUser(user); err != nil {
+			utils.LogWarning("authUsecase.Login: failed to create user")
+			return err
+		}
 	}
 	return nil
 }
 
+// Discordの認証ページへのリダイレクトURLを生成する
 func (u *AuthUsecase) RedirectAuthPage(clientId, redirectUri string, scopes ...string) string {
 	authURL := "https://discord.com/api/oauth2/authorize" +
 		"?client_id=" + clientId +
